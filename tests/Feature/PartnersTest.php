@@ -44,10 +44,10 @@ class PartnersTest extends TestCase
         $response->assertViewHas('partners', fn ($partners) => $partners->count() === 5);
     }
 
-    public function test_partner_tier_accepts_only_a_b_or_c(): void
+    public function test_partner_tier_rejects_a_value_outside_a_b_c(): void
     {
-        $partner = Partner::factory()->create(['tier' => 'b']);
+        $this->expectException(\Illuminate\Database\QueryException::class);
 
-        $this->assertContains($partner->fresh()->tier, ['a', 'b', 'c']);
+        Partner::factory()->create(['tier' => 'z']);
     }
 }
