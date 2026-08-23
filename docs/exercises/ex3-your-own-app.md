@@ -8,7 +8,7 @@ Go from a blank folder to a running v1, the same way you just watched: spec firs
 
 ## Steps
 
-1. With your partner, pick one of the three briefs: **"Route day sheet"**, **"Price-list diff"**, or **"Stock-count helper"**. If you don't already have the brief file, ask your instructor for a copy.
+1. With your partner, pick one of the three briefs: **"Route day sheet"**, **"Price-list diff"**, or **"Stock-count helper"** — each is a file in `docs/exercises/` in this repo. Printed copies are also on the tables if you'd rather read on paper.
 2. Read the whole brief before writing anything — goal, sample input, and what "done" looks like.
 3. Write a short spec first: a few sentences on what the tool takes in, what it produces, and what counts as finished. Ask Claude to help you tighten it if you're stuck.
 4. Let Claude plan from your spec, then build it, in a fresh empty folder.
