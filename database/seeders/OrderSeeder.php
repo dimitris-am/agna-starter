@@ -85,7 +85,46 @@ class OrderSeeder extends Seeder
                     }
                 }
             }
+
+            $this->seedOverdueDeliveries($now);
         });
+    }
+
+    /**
+     * Real distribution operations always have a handful of orders stuck
+     * in the pipeline: routed to a driver, never marked delivered, and
+     * nobody circled back. The status roll above can't produce that on
+     * its own (anything older than 12 days always resolves to delivered
+     * or invoiced), so a fixed slice of orders from the 1-8-week-old
+     * window is pulled back to "open" with its delivery left overdue.
+     *
+     * Deterministic: the candidate window and cohort size are fixed, and
+     * the pick is "the first N by id" within that window, not a dice
+     * roll — so the count doesn't drift between seed runs.
+     */
+    private function seedOverdueDeliveries(Carbon $now): void
+    {
+        $candidates = Order::query()
+            ->whereBetween('ordered_at', [
+                $now->copy()->subWeeks(8),
+                $now->copy()->subWeek(),
+            ])
+            ->orderBy('id')
+            ->limit(30)
+            ->get();
+
+        foreach ($candidates as $order) {
+            $order->delivery()->delete();
+            $order->invoice()->delete();
+            $order->update(['status' => 'open']);
+
+            Delivery::create([
+                'order_id' => $order->id,
+                'scheduled_for' => DeliveryScheduler::nextSlot($order->ordered_at),
+                'delivered_at' => null,
+                'route_code' => Demo::ROUTE_CODES[$order->id % count(Demo::ROUTE_CODES)],
+            ]);
+        }
     }
 
     /**
